@@ -22,10 +22,12 @@ const findDiamonds = screen => {
 
 const findNearestDiamond = ({x, y}, diamondsPositions) => {
   let nearestPos;
-  let distance = Math.min.apply(null,
-    diamondsPositions.map(el => Math.abs(el.x - x + el.y - y))
+  const distances = diamondsPositions.map(el => (Math.abs(el.x - x) + Math.abs(el.y - y)));
+  let minDistance = Math.min.apply(null,
+    distances
   );
-  console.log(' nearestPos', distance);
+  console.log(' nearestPos', distances, minDistance);
+  console.log(' Pos', diamondsPositions, x, y);
 }
 
 exports.play = function*(screen) {
