@@ -76,7 +76,7 @@ const findNearestDiamondLee = (ax, ay, diamondsPositions, screen) => {
         d++;
       } while ( !stop && grid[diam.y][diam.x] === '*' );
 
-    const elLength = grid[diam.y][diam.x] === '*' ? 99999 : grid[diam.y][diam.x];
+    const elLength = grid[diam.y][diam.x];
     // console.log(' elLength', elLength, diam);
     if (i == 0) length = elLength;
     if (elLength < length ) {
@@ -134,7 +134,6 @@ const lee = (ax, ay, bx, by, screen) => {
     // восстановление пути
   len = grid[by][bx];            // длина кратчайшего пути из (ax, ay) в (bx, by)
   console.log('len', len)
-
   x = bx;
   y = by;
   d = len;
@@ -221,25 +220,9 @@ const searchAndHarvest = (x, y, moves, screen, diamonds) => {
   return harvest(px, py, x, y, moves, screen, diamonds);
 }
 
-const isFallingStone = (x, y, screen) => {
-  const H = screen.length - 1;
-  const W = screen[0].length;
-
-  if (y-2 > 0 && screen[y-2][x] === ':' ||
-      screen[y-1][x] === ':') return false;
-  if (y-3 > 0 && screen[y-3][x] !== 'O' &&
-      screen[y-2][x] !== 'O') return false;
-  return true; 
-}
-
 const harvest = (px, py, x, y, moves, screen, diamonds) => {
   let lPx = x - px[1];
   let lPy = y - py[1];
-
-  // if (lPx !== lPx || lPy !== lPy) {
-  //   moves = moveToPassable(x, y, moves, screen, diamonds);
-  // }
-
 
   // if (lPx === 0 && px[2]) lPx = x - px[2];
   // if (lPy === 0 && py[2]) lPy = y - py[2];
@@ -249,9 +232,7 @@ const harvest = (px, py, x, y, moves, screen, diamonds) => {
 
   for (let j = 0; j < Math.abs(lPx); j++) {
     if (lPx > 0) {
-      if (!isFallingStone(x-1, y, screen)) {
-        moves += 'l';
-      }
+      moves += 'l';
       if (!PASSABLE.includes(screen[y][x-1])) {
         moves = doWhenStuck(x, y, screen, moves, diamonds);
         // console.log('harvest stuck left', moves);
@@ -289,15 +270,17 @@ const harvest = (px, py, x, y, moves, screen, diamonds) => {
 }
 
 let butterfliesArea = (butterflies, screen) => {
+    let lengthArr = [];
+    let length = 0;
+    let n = 0;
+    let grid = [...screen].map(el => el.split(''));
+    grid.pop();
+    const dx = [1, 0, -1, 0];
+    const dy = [0, 1, 0, -1];
+    const H = screen.length - 1;
+    const W = screen[0].length;
 
-  let grid = [...screen].map(el => el.split(''));
-  grid.pop();
-  const dx = [1, 0, -1, 0];
-  const dy = [0, 1, 0, -1];
-  const H = screen.length - 1;
-  const W = screen[0].length;
-
-  butterflies.forEach((butterfly, i) => {
+    butterflies.forEach((butterfly, i) => {
 
     let d, x, y, k;
     let stop = false;
@@ -315,7 +298,7 @@ let butterfliesArea = (butterflies, screen) => {
                  let iy = y + dy[k]; 
                  let ix = x + dx[k];
                  if ( iy >= 0 && iy < H && ix >= 0 && ix < W &&
-                      [' ', '*'].includes(grid[iy][ix]) && !['A'].includes(grid[iy][ix]))
+                      ['*', ' '].includes(grid[iy][ix]))
                  {
                     stop = false;              // найдены непомеченные клетки
                     grid[iy][ix] = d + 1;      // распространяем волну
@@ -324,41 +307,35 @@ let butterfliesArea = (butterflies, screen) => {
             }
         d++;
       } while ( !stop );
+    
+    const elLength = grid[butterfly.y][butterfly.x];
+    // console.log(' elLength', elLength, diam);
+    if (i == 0) length = elLength;
+    if (elLength < length ) {
+      length = elLength;
+      lengthArr.push(length);
+      n = i;
+    }
   });
-  // console.log('grid', grid.map(el => el.join(' ')));
-  let x, y, k;
+  // for (let i=0; i<grid.length; i++) console.log('grid', grid[i].join(' '));
+  let d, x, y, k;
   for ( y = 0; y < H; ++y )
     for ( x = 0; x < W; ++x )
       if ( typeof grid[y][x] === 'number' )
       {
+        grid[y][x] = '-';
         for ( k = 0; k < 4; ++k )
         {
            let iy = y + dy[k]; 
            let ix = x + dx[k];
-           if ( iy >= 0 && iy < H && ix >= 0 && ix < W &&
-            [':', '+', '*'].includes(grid[iy][ix]) && !['A'].includes(grid[iy][ix]) )
+           if ( iy >= 0 && iy < H && ix >= 0 && ix < W)
            {
-              grid[iy][ix] = '/';
+              grid[iy][ix] = '/';      // распространяем волну
            }
         }
-        grid[y][x] = '-';
       }
-
   // console.log('grid', grid.map(el => el.join('')));
   return grid.map(el => el.join(''))
-}
-
-const avoid = (x, y, moves, screen) => {
-  let grid = [...screen].map(el => el.split(''));
-  console.log('avoid', grid.map(el => el.join('')));
-
-  if (grid[y-1][x] = ' ' && ['O', '*'].includes(grid[y-2][x])) {
-    console.log('avoid if');
-    if (PASSABLE.includes(screen[y][x+1])) moves += 'r';
-    if (PASSABLE.includes(screen[y][x-1])) moves += 'l';
-  }
-
-  return moves;
 }
 
 exports.play = function*(screen) {
@@ -371,11 +348,15 @@ exports.play = function*(screen) {
 
     let area = butterfliesArea(butterflies, screen);
 
+    // let {px, py} = lee(x, y, diamonds[1].x, diamonds[1].y, screen);
+
+    // let xLength = x - nearDiam.x;
+    // let yLength = y - nearDiam.y;
+
     let moves = '';
     
     console.log(' player pos', x, y);
 
-    // moves += avoid(x, y, moves, screen);
     moves = searchAndHarvest(x, y, moves, area, diamonds);
     
     // moves = doWhenStuck(x, y, screen, moves, diamonds);

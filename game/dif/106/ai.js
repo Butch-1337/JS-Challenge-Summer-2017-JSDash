@@ -7,20 +7,20 @@ const findPlayer = screen => {
   for (let y = 0; y < screen.length; y++) {
     let row = screen[y];
     for (let x = 0; x < row.length; x++) {
-      if (row[x] === 'A') return { x, y };
+      if (row[x] == 'A') return { x, y };
     }
   }
 };
 
-const findThings = (things, screen) => {
-  const thingsPositions = [];
+const findDiamonds = screen => {
+  const diamondsPositions = [];
   for (let y = 0; y < screen.length; y++) {
     let row = screen[y];
     for (let x = 0; x < row.length; x++) {
-      if ( things.includes(row[x])) thingsPositions.push({ x, y });
+      if (row[x] == '*') diamondsPositions.push({ x, y });
     }
   }
-  return thingsPositions;
+  return diamondsPositions;
 };
 
 const findNearestDiamond = ({x, y}, diamondsPositions) => {
@@ -28,7 +28,7 @@ const findNearestDiamond = ({x, y}, diamondsPositions) => {
   let n = 0;
   diamondsPositions.forEach((el, i) => {
     const elLength = Math.abs(el.x - x) + Math.abs(el.y - y);
-    if (i === 0) length = elLength;
+    if (i == 0) length = elLength;
     if (elLength < length ) {
       length = elLength;
       n = i;
@@ -37,19 +37,18 @@ const findNearestDiamond = ({x, y}, diamondsPositions) => {
   return diamondsPositions[n];
 }
 
-const findNearestDiamondLee = (ax, ay, diamondsPositions, screen) => {
+const findNearestDiamond2 = (ax, ay, diamondsPositions, screen) => {
   let lengthArr = [];
   let length = 0;
   let n = 0;
 
-  diamondsPositions.forEach((diam, i) => {
+  diamondsPositions.forEach((el, i) => {
     const dx = [1, 0, -1, 0];
     const dy = [0, 1, 0, -1];
-    const H = screen.length - 1;
+    const H = screen.length;
     const W = screen[0].length;
 
     let grid = [...screen].map(el => el.split(''));
-    grid.pop();
     let d, x, y, k;
     let stop = false;
 
@@ -59,7 +58,7 @@ const findNearestDiamondLee = (ax, ay, diamondsPositions, screen) => {
         stop = true;               // предполагаем, что все свободные клетки уже помечены
         for ( y = 0; y < H; ++y )
           for ( x = 0; x < W; ++x )
-            if ( grid[y][x] === d )                         // ячейка (x, y) помечена числом d
+            if ( grid[y][x] == d )                         // ячейка (x, y) помечена числом d
             {
               for ( k = 0; k < 4; ++k )                    // проходим по всем непомеченным соседям
               {
@@ -74,10 +73,11 @@ const findNearestDiamondLee = (ax, ay, diamondsPositions, screen) => {
               }
             }
         d++;
-      } while ( !stop && grid[diam.y][diam.x] === '*' );
+      } while ( !stop && grid[el.y][el.x] == '*' );
 
-    const elLength = grid[diam.y][diam.x] === '*' ? 99999 : grid[diam.y][diam.x];
-    // console.log(' elLength', elLength, diam);
+    const elLength = grid[el.y][el.x];
+    console.log(' elLength', elLength, el);
+    // if (i == 0) console.log(' grid', grid);
     if (i == 0) length = elLength;
     if (elLength < length ) {
       length = elLength;
@@ -85,7 +85,7 @@ const findNearestDiamondLee = (ax, ay, diamondsPositions, screen) => {
       n = i;
     }
   });
-  // console.log(' lengthArr', lengthArr);
+  console.log(' lengthArr', lengthArr);
   return diamondsPositions[n];
 }
 
@@ -93,48 +93,42 @@ const lee = (ax, ay, bx, by, screen) => {
   const dx = [1, 0, -1, 0];
   const dy = [0, 1, 0, -1];
   const H = screen.length - 1;
-  const W = screen[0].length;
+  const W = screen[0].length
   let grid = [...screen].map(el => el.split(''));
-  grid.pop();
   let d, x, y, k;
   let stop = false;
   let px = [];
   let py = [];
   let len;
-  // console.log('lee', bx, by);
+  // for (let i=0;i<50;i++) console.log('lee', H, W);
 
   d = 0;
   grid[ay][ax] = 0;            // стартовая ячейка помечена 0
   do {
       stop = true;               // предполагаем, что все свободные клетки уже помечены
       for ( y = 0; y < H; ++y )
-        for ( x = 0; x < W; ++x ) {
-          if ( grid[y][x] === d )                         // ячейка (x, y) помечена числом d
+        for ( x = 0; x < W; ++x )
+          if ( grid[y][x] == d )                         // ячейка (x, y) помечена числом d
           {
             for ( k = 0; k < 4; ++k )                    // проходим по всем непомеченным соседям
             {
-              let iy = y + dy[k]; 
-              let ix = x + dx[k];
-
-              if ( iy >= 0 && iy < H && ix >= 0 && ix < W &&
+               let iy = y + dy[k]; 
+               let ix = x + dx[k];
+               if ( iy >= 0 && iy < H && ix >= 0 && ix < W &&
                     PASSABLE.includes(grid[iy][ix]))
-              {
-                // for (let i=0; i<grid.length; i++) console.log('grid', x, y, grid[i].join(''));
-                stop = false;              // найдены непомеченные клетки
-                grid[iy][ix] = d + 1;      // распространяем волну
-              }
+               {
+                  stop = false;              // найдены непомеченные клетки
+                  grid[iy][ix] = d + 1;      // распространяем волну
+               }
             }
           }
-        }
       d++;
-      // console.log('d', d, stop, grid[by][bx]);
-    } while ( !stop && grid[by][bx] === '*' );
-  // for (let i=0; i<grid.length; i++) console.log('grid', grid[i].join(' '));
+    } while ( !stop && grid[by][bx] == '*' );
+  // console.log('grid', grid)
 
     // восстановление пути
   len = grid[by][bx];            // длина кратчайшего пути из (ax, ay) в (bx, by)
   console.log('len', len)
-
   x = bx;
   y = by;
   d = len;
@@ -148,7 +142,7 @@ const lee = (ax, ay, bx, by, screen) => {
        let iy = y + dy[k];
        let ix = x + dx[k];
        if ( iy >= 0 && iy < H && ix >= 0 && ix < W &&
-            grid[iy][ix] === d)
+            grid[iy][ix] == d)
       {
           x = x + dx[k];
           y = y + dy[k];           // переходим в ячейку, которая на 1 ближе к старту
@@ -159,7 +153,7 @@ const lee = (ax, ay, bx, by, screen) => {
 
   px[0] = ax;
   py[0] = ay;                    // теперь px[0..len] и py[0..len] - координаты ячеек пути
-  // console.log('lee px py', px, py);
+  
   return {px, py};
 }
 
@@ -212,34 +206,16 @@ const moveToPassable = (x, y, moves, screen, diamonds) => {
 }
 
 const searchAndHarvest = (x, y, moves, screen, diamonds) => {
-  // let nearDiam = findNearestDiamond({x, y}, diamonds);
-  // console.log('screen', screen);
-  let nearDiam = findNearestDiamondLee(x, y, diamonds, screen);
+  let nearDiam = findNearestDiamond({x, y}, diamonds);
   let {px, py} = lee(x, y, nearDiam.x, nearDiam.y, screen);
   console.log(' near diamond', nearDiam.x, nearDiam.y);
 
   return harvest(px, py, x, y, moves, screen, diamonds);
 }
 
-const isFallingStone = (x, y, screen) => {
-  const H = screen.length - 1;
-  const W = screen[0].length;
-
-  if (y-2 > 0 && screen[y-2][x] === ':' ||
-      screen[y-1][x] === ':') return false;
-  if (y-3 > 0 && screen[y-3][x] !== 'O' &&
-      screen[y-2][x] !== 'O') return false;
-  return true; 
-}
-
 const harvest = (px, py, x, y, moves, screen, diamonds) => {
   let lPx = x - px[1];
   let lPy = y - py[1];
-
-  // if (lPx !== lPx || lPy !== lPy) {
-  //   moves = moveToPassable(x, y, moves, screen, diamonds);
-  // }
-
 
   // if (lPx === 0 && px[2]) lPx = x - px[2];
   // if (lPy === 0 && py[2]) lPy = y - py[2];
@@ -249,12 +225,10 @@ const harvest = (px, py, x, y, moves, screen, diamonds) => {
 
   for (let j = 0; j < Math.abs(lPx); j++) {
     if (lPx > 0) {
-      if (!isFallingStone(x-1, y, screen)) {
-        moves += 'l';
-      }
+      moves += 'l';
       if (!PASSABLE.includes(screen[y][x-1])) {
         moves = doWhenStuck(x, y, screen, moves, diamonds);
-        // console.log('harvest stuck left', moves);
+        console.log('harvest stuck left', moves);
       }          
     } else {
       moves += 'r'; 
@@ -271,91 +245,13 @@ const harvest = (px, py, x, y, moves, screen, diamonds) => {
         moves = doWhenStuck(x, y, screen, moves, diamonds); 
       }
     } else {
-      if (screen[y-1][x] !== 'O') {
-        moves += 'd';
-      } else {
-        if (PASSABLE.includes(screen[y][x+1])) moves += 'r';
-        if (PASSABLE.includes(screen[y][x-1])) moves += 'l';
-      } 
-         
+      if (screen[y-1][x] !== 'O')
+        moves += 'd'; 
       if (!PASSABLE.includes(screen[y+1][x])) {
         moves = doWhenStuck(x, y, screen, moves, diamonds);
-        // for (let i=0;i<50;i++) console.log('harvest stuck down', moves);
+        for (let i=0;i<50;i++) console.log('harvest stuck down', moves); 
       }
     }
-  }
-
-  return moves;
-}
-
-let butterfliesArea = (butterflies, screen) => {
-
-  let grid = [...screen].map(el => el.split(''));
-  grid.pop();
-  const dx = [1, 0, -1, 0];
-  const dy = [0, 1, 0, -1];
-  const H = screen.length - 1;
-  const W = screen[0].length;
-
-  butterflies.forEach((butterfly, i) => {
-
-    let d, x, y, k;
-    let stop = false;
-
-    d = 0;
-    grid[butterfly.y][butterfly.x] = 0;            // стартовая ячейка помечена 0
-    do {
-        stop = true;               // предполагаем, что все свободные клетки уже помечены
-        for ( y = 0; y < H; ++y )
-          for ( x = 0; x < W; ++x )
-            if ( grid[y][x] === d )                         // ячейка (x, y) помечена числом d
-            {
-              for ( k = 0; k < 4; ++k )                    // проходим по всем непомеченным соседям
-              {
-                 let iy = y + dy[k]; 
-                 let ix = x + dx[k];
-                 if ( iy >= 0 && iy < H && ix >= 0 && ix < W &&
-                      [' ', '*'].includes(grid[iy][ix]) && !['A'].includes(grid[iy][ix]))
-                 {
-                    stop = false;              // найдены непомеченные клетки
-                    grid[iy][ix] = d + 1;      // распространяем волну
-                 }
-              }
-            }
-        d++;
-      } while ( !stop );
-  });
-  // console.log('grid', grid.map(el => el.join(' ')));
-  let x, y, k;
-  for ( y = 0; y < H; ++y )
-    for ( x = 0; x < W; ++x )
-      if ( typeof grid[y][x] === 'number' )
-      {
-        for ( k = 0; k < 4; ++k )
-        {
-           let iy = y + dy[k]; 
-           let ix = x + dx[k];
-           if ( iy >= 0 && iy < H && ix >= 0 && ix < W &&
-            [':', '+', '*'].includes(grid[iy][ix]) && !['A'].includes(grid[iy][ix]) )
-           {
-              grid[iy][ix] = '/';
-           }
-        }
-        grid[y][x] = '-';
-      }
-
-  // console.log('grid', grid.map(el => el.join('')));
-  return grid.map(el => el.join(''))
-}
-
-const avoid = (x, y, moves, screen) => {
-  let grid = [...screen].map(el => el.split(''));
-  console.log('avoid', grid.map(el => el.join('')));
-
-  if (grid[y-1][x] = ' ' && ['O', '*'].includes(grid[y-2][x])) {
-    console.log('avoid if');
-    if (PASSABLE.includes(screen[y][x+1])) moves += 'r';
-    if (PASSABLE.includes(screen[y][x-1])) moves += 'l';
   }
 
   return moves;
@@ -364,22 +260,33 @@ const avoid = (x, y, moves, screen) => {
 exports.play = function*(screen) {
   while (true) {
     let { x, y } = findPlayer(screen);
-    let diamonds = findThings(['*'], screen);
+    let diamonds = findDiamonds(screen);
 
-    let butterflies = findThings(['/', '|', '\\', '-'], screen);
-    // console.log('butterflies', butterflies);
+    // let nearDiam = findNearestDiamond2(x, y, diamonds, screen);
 
-    let area = butterfliesArea(butterflies, screen);
+    // let xLength = x - nearDiam.x;
+    // let yLength = y - nearDiam.y;
 
     let moves = '';
     
     console.log(' player pos', x, y);
 
-    // moves += avoid(x, y, moves, screen);
-    moves = searchAndHarvest(x, y, moves, area, diamonds);
+    moves = searchAndHarvest(x, y, moves, screen, diamonds);
     
     // moves = doWhenStuck(x, y, screen, moves, diamonds);
     console.log(' moves', moves);
+
+    // setTimeout(function* (x, y) {
+    //   let newPos = findPlayer(screen);
+    //   // console.log('moves', moves);
+    //   // console.log(' setTimeout', newPos, x, y);
+    //   if (x === newPos.x && y === newPos.y) {
+    //     moves = 'lurd'[Math.floor(Math.random()*'lurd'.length)];
+    //     console.log('moves', moves);
+    //     yield moves;
+    //   }
+        
+    // },1000, x, y);
 
     for (let i = 0; i <= moves.length; i++) {
       yield moves[i];
