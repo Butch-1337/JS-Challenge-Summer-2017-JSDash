@@ -222,14 +222,58 @@ const searchAndHarvest = (x, y, moves, screen, diamonds) => {
 }
 
 const isFallingStone = (x, y, screen) => {
-  const H = screen.length - 1;
-  const W = screen[0].length;
 
-  if (y-2 > 0 && screen[y-2][x] === ':' ||
-      screen[y-1][x] === ':') return false;
-  if (y-3 > 0 && screen[y-3][x] !== 'O' &&
-      screen[y-2][x] !== 'O') return false;
-  return true; 
+  if (y - 1 > 0 &&
+      ['*',':','+', '/', '|', '\\', '-'].includes(screen[y-1][x])) return false;
+
+  // if (y-3 > 0 &&
+  //     ['O', '*'].includes(screen[y-3][x]) &&
+  //     ['O', '*'].includes(screen[y-2][x]) &&
+  //     ['O', '*'].includes(screen[y-1][x]) &&
+  //     screen[y][x] === ':') return false;
+
+  if (y-2 > 0 &&
+      ['O', '*'].includes(screen[y-2][x]) &&
+      ['O', '*'].includes(screen[y-1][x]) &&
+      screen[y][x] === ':') return false;
+
+  if (y-3 > 0 &&
+      screen[y-3][x] === 'O' &&
+      !['*',':','+', '/', '|', '\\', '-'].includes(screen[y-2][x])) {
+    for (let i=0;i<50;i++) console.log('stone[y-3][x]');
+    return true; 
+  }
+
+  if (y-2 > 0 &&
+      screen[y-2][x] === 'O' &&
+      !['*',':','+', '/', '|', '\\', '-'].includes(screen[y-1][x])) {
+    for (let i=0;i<50;i++) console.log('stone[y-2][x]');
+    return true;
+  }
+
+  return false; 
+}
+
+const isFallingDiamond = (x, y, screen) => {
+
+  if (y - 1 > 0 &&
+      [':','+', '/', '|', '\\', '-'].includes(screen[y-1][x])) return false;
+
+  if (y-3 > 0 &&
+      screen[y-3][x] === '*' &&
+      ![':','+', '/', '|', '\\', '-'].includes(screen[y-2][x])) {
+    for (let i=0;i<50;i++) console.log('diam[y-3][x]');
+    return true;
+  }
+
+  if (y-2 > 0 &&
+      screen[y-2][x] === '*' &&
+      ![':','+', '/', '|', '\\', '-'].includes(screen[y-1][x])) {
+    for (let i=0;i<50;i++) console.log('diam[y-2][x]');
+    return true;
+  }
+
+  return false; 
 }
 
 const harvest = (px, py, x, y, moves, screen, diamonds) => {
@@ -249,15 +293,19 @@ const harvest = (px, py, x, y, moves, screen, diamonds) => {
 
   for (let j = 0; j < Math.abs(lPx); j++) {
     if (lPx > 0) {
-      if (!isFallingStone(x-1, y, screen)) {
-        moves += 'l';
-      }
+
+      if (!isFallingStone(x-1, y, screen) &&
+          !isFallingDiamond(x-1, y, screen)) moves += 'l';
+
       if (!PASSABLE.includes(screen[y][x-1])) {
         moves = doWhenStuck(x, y, screen, moves, diamonds);
         // console.log('harvest stuck left', moves);
       }          
     } else {
-      moves += 'r'; 
+
+      if (!isFallingStone(x+1, y, screen) &&
+          !isFallingDiamond(x+1, y, screen)) moves += 'r';
+
       if (!PASSABLE.includes(screen[y][x+1])) {
         moves = doWhenStuck(x, y, screen, moves, diamonds); 
       }

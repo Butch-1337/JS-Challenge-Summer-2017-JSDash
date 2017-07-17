@@ -19,6 +19,10 @@ node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=5270
 
 node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=836919189 - buterflies and 2 diamonds left
 
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=571069896 - stone in 1s
+node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=571069896 - stone in 1s - ok
 
 node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=992077002 - stuck near butterfly and diamond
+
+node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=908807633 - stone
+
+node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=669094511 - butterfly
