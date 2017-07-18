@@ -3,6 +3,8 @@
 const PASSABLE = [' ', ':', '*'];
 const NOTPASSABLE = ['+', '#', 'O', '/', '|', '\\', '-'];
 
+let surround = false;
+
 const findPlayer = screen => {
   for (let y = 0; y < screen.length; y++) {
     let row = screen[y];
@@ -235,7 +237,7 @@ const isFallingStone = (x, y, screen) => {
   if (y-2 > 0 &&
       ['O', '*'].includes(screen[y-2][x]) &&
       ['O', '*'].includes(screen[y-1][x]) &&
-      screen[y][x] === ':') return false;
+      [':', '*'].includes(screen[y][x])) return false;
 
   if (y-3 > 0 &&
       screen[y-3][x] === 'O' &&
@@ -259,6 +261,11 @@ const isFallingDiamond = (x, y, screen) => {
   if (y - 1 > 0 &&
       [':','+', '/', '|', '\\', '-'].includes(screen[y-1][x])) return false;
 
+  if (y-2 > 0 &&
+      ['O', '*'].includes(screen[y-2][x]) &&
+      ['O', '*'].includes(screen[y-1][x]) &&
+      screen[y][x] === ':') return false;
+
   if (y-3 > 0 &&
       screen[y-3][x] === '*' &&
       ![':','+', '/', '|', '\\', '-'].includes(screen[y-2][x])) {
@@ -266,12 +273,12 @@ const isFallingDiamond = (x, y, screen) => {
     return true;
   }
 
-  if (y-2 > 0 &&
-      screen[y-2][x] === '*' &&
-      ![':','+', '/', '|', '\\', '-'].includes(screen[y-1][x])) {
-    for (let i=0;i<50;i++) console.log('diam[y-2][x]');
-    return true;
-  }
+  // if (y-2 > 0 &&
+  //     screen[y-2][x] === '*' &&
+  //     ![':','+', '/', '|', '\\', '-'].includes(screen[y-1][x])) {
+  //   for (let i=0;i<50;i++) console.log('diam[y-2][x]');
+  //   return true;
+  // }
 
   return false; 
 }
@@ -280,9 +287,10 @@ const harvest = (px, py, x, y, moves, screen, diamonds) => {
   let lPx = x - px[1];
   let lPy = y - py[1];
 
-  // if (lPx !== lPx || lPy !== lPy) {
-  //   moves = moveToPassable(x, y, moves, screen, diamonds);
-  // }
+  if (lPx !== lPx || lPy !== lPy) {
+    surround = true;
+    // moves = moveToPassable(x, y, moves, screen, diamonds);
+  } else surround = false;
 
 
   // if (lPx === 0 && px[2]) lPx = x - px[2];
@@ -319,7 +327,9 @@ const harvest = (px, py, x, y, moves, screen, diamonds) => {
         moves = doWhenStuck(x, y, screen, moves, diamonds); 
       }
     } else {
-      if (screen[y-1][x] !== 'O') {
+      if (screen[y-1][x] !== 'O' &&
+          !isFallingStone(x, y, screen) &&
+          !isFallingDiamond(x, y, screen)) {
         moves += 'd';
       } else {
         if (PASSABLE.includes(screen[y][x+1])) moves += 'r';
@@ -336,7 +346,7 @@ const harvest = (px, py, x, y, moves, screen, diamonds) => {
   return moves;
 }
 
-let butterfliesArea = (butterflies, screen) => {
+let butterfliesArea = (plx, ply, butterflies, screen) => {
 
   let grid = [...screen].map(el => el.split(''));
   grid.pop();
@@ -363,7 +373,9 @@ let butterfliesArea = (butterflies, screen) => {
                  let iy = y + dy[k]; 
                  let ix = x + dx[k];
                  if ( iy >= 0 && iy < H && ix >= 0 && ix < W &&
-                      [' ', '*'].includes(grid[iy][ix]) && !['A'].includes(grid[iy][ix]))
+                      !surround &&
+                      [' ', '*'].includes(grid[iy][ix]) &&
+                      !['A'].includes(grid[iy][ix]) )
                  {
                     stop = false;              // найдены непомеченные клетки
                     grid[iy][ix] = d + 1;      // распространяем волну
@@ -384,7 +396,9 @@ let butterfliesArea = (butterflies, screen) => {
            let iy = y + dy[k]; 
            let ix = x + dx[k];
            if ( iy >= 0 && iy < H && ix >= 0 && ix < W &&
-            [':', '+', '*'].includes(grid[iy][ix]) && !['A'].includes(grid[iy][ix]) )
+                !surround &&
+                [':', 'O', '*'].includes(grid[iy][ix]) &&
+                !['A'].includes(grid[iy][ix]) )
            {
               grid[iy][ix] = '/';
            }
@@ -392,7 +406,7 @@ let butterfliesArea = (butterflies, screen) => {
         grid[y][x] = '-';
       }
 
-  // console.log('grid', grid.map(el => el.join('')));
+  // console.log('grid', surround, grid.map(el => el.join('')));
   return grid.map(el => el.join(''))
 }
 
@@ -417,7 +431,7 @@ exports.play = function*(screen) {
     let butterflies = findThings(['/', '|', '\\', '-'], screen);
     // console.log('butterflies', butterflies);
 
-    let area = butterfliesArea(butterflies, screen);
+    let area = butterfliesArea(x, y, butterflies, screen);
 
     let moves = '';
     
