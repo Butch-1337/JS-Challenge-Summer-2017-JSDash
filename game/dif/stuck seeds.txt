@@ -8,30 +8,35 @@ node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=1734
 node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=1096468486 - ok - 86
 node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=2140081632 - ok
 
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=1598955300 - killed by stone
+--seed=1598955300 - killed by stone - stuck in stones
 
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=1075023220 - 116
+--seed=1075023220 - 116
 
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=1184815903 - butterfly - 174 killed by stone
+--seed=1184815903 - butterfly - 174 killed by stone - 211 killed by stone
 
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=161264384 - stone
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=527030013 -stone
+--seed=161264384 - stone - stone score 102
+--seed=527030013 -stone - !!!stone score 2 stuck
 
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=836919189 - buterflies and 2 diamonds left
+--seed=836919189 - buterflies and 2 diamonds left - stuck near stone score 23
 
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=571069896 - stone in 1s - ok
+--seed=571069896 - stone in 1s - ok - butterfly score 215
 
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=992077002 - stuck near butterfly and diamond
+--seed=992077002 - stuck near butterfly and diamond - butterfly 55
 
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=908807633 - stone
+--seed=908807633 - stone - stuck near stone 53 - killed by stone 53
 
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=669094511 - butterfly - killed by 3stone near diamonds
+--seed=669094511 - butterfly - killed by 3stone near diamonds - killed by diamond in 1s - butterfly score 55
 
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=540473499 - stone
+--seed=540473499 - stone - stone score 260
 
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=587232868 - stone in 5s
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=1798468531 - stone in 12s
+--seed=587232868 - stone in 5s - 3 butterflies left score 187
+--seed=1798468531 - stone in 12s - by butterfly no diamonds score 245
 
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=339952454 - stuck near 3 diamonds
+--seed=339952454 - stuck near 3 diamonds - ok killed by butterfly score 150
 
-node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=1977774632 - slowness near butterfly
+--seed=1977774632 - slowness near butterfly - stuck near 3 diamonds score 137 - 1 butterfly left score 201
+
+--seed=1592559851 - stone near falling diamond - stone score 190
+
+--seed=2069505837 - stuck near stone score 24 - killed by butterfly score 95
+--seed=1184927604 - stuck near stone score 77 - killed by butterfly score 150

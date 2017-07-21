@@ -25,6 +25,20 @@ const findThings = (things, screen) => {
   return thingsPositions;
 };
 
+const findNearestDiamond = ({x, y}, diamondsPositions) => {
+  let length = 0;
+  let n = 0;
+  diamondsPositions.forEach((el, i) => {
+    const elLength = Math.abs(el.x - x) + Math.abs(el.y - y);
+    if (i === 0) length = elLength;
+    if (elLength < length ) {
+      length = elLength;
+      n = i;
+    }
+  });
+  return diamondsPositions[n];
+}
+
 const findNearestDiamondLee = (ax, ay, diamondsPositions, screen) => {
   let lengthArr = [];
   let length = 0;
@@ -200,6 +214,7 @@ const moveToPassable = (x, y, moves, screen, diamonds) => {
 }
 
 const searchAndHarvest = (x, y, moves, screen, diamonds) => {
+  // let nearDiam = findNearestDiamond({x, y}, diamonds);
   // console.log('screen', screen);
   let nearDiam = findNearestDiamondLee(x, y, diamonds, screen) || {x, y};
   let {px, py} = lee(x, y, nearDiam.x, nearDiam.y, screen);
@@ -249,7 +264,7 @@ const isFallingDiamond = (x, y, screen) => {
   if (y-2 > 0 &&
       ['O', '*'].includes(screen[y-2][x]) &&
       ['O', '*'].includes(screen[y-1][x]) &&
-      [':', '*'].includes(screen[y][x])) return false;
+      screen[y][x] === ':') return false;
 
   // if (y-3 > 0 &&
   //     screen[y-3][x] === '*' &&
@@ -293,7 +308,14 @@ const harvest = (px, py, x, y, moves, screen, diamonds) => {
             moves += 'l';
       } else {
         // for (let i=0;i<10;i++) console.log('STONE when move left');
+        // if (PASSABLE.includes(screen[y][x+1])) moves += 'r';
+        // if (PASSABLE.includes(screen[y][x-1])) moves += 'l';
       }
+
+      // if (!PASSABLE.includes(screen[y][x-1])) {
+      //   moves = doWhenStuck(x, y, screen, moves, diamonds);
+      //   // console.log('harvest stuck left', moves);
+      // }
     } else {
 
       if (screen[y][x+1] !== 'B' &&
@@ -302,7 +324,12 @@ const harvest = (px, py, x, y, moves, screen, diamonds) => {
             moves += 'r';
       } else {
         // for (let i=0;i<10;i++) console.log('STONE when move right');
+        // if (PASSABLE.includes(screen[y][x+1])) moves += 'r';
+        // if (PASSABLE.includes(screen[y][x-1])) moves += 'l';
       }
+      // if (!PASSABLE.includes(screen[y][x+1])) {
+      //   moves = doWhenStuck(x, y, screen, moves, diamonds);
+      // }
     }
   }
 
@@ -310,7 +337,7 @@ const harvest = (px, py, x, y, moves, screen, diamonds) => {
     if (lPy > 0) {
       moves += 'u';
       if (!PASSABLE.includes(screen[y-1][x])) {
-        // moves = doWhenStuck(x, y, screen, moves, diamonds);
+        moves = doWhenStuck(x, y, screen, moves, diamonds);
       }
     } else {
       if (screen[y-1][x] !== 'O' &&
@@ -318,18 +345,21 @@ const harvest = (px, py, x, y, moves, screen, diamonds) => {
           !isFallingDiamond(x, y, screen)) {
         moves += 'd';
       } else {
+        // for (let i=0;i<10;i++) console.log('STONE when move down');
         if (PASSABLE.includes(screen[y][x+1]) &&
             !isFallingStone(x+1, y, screen) &&
             !isFallingDiamond(x+1, y, screen)) moves += 'r';
         else if (PASSABLE.includes(screen[y][x-1]) &&
                 !isFallingStone(x-1, y, screen) &&
                 !isFallingDiamond(x-1, y, screen)) moves += 'l';
-        // else if (PASSABLE.includes(screen[y+1][x-1])) moves += 'dl';
-        else if (PASSABLE.includes(screen[y+1][x+1])) moves += 'd';
-        // else if (PASSABLE.includes(screen[y+2][x+1])) moves += 'ddr';
-        for (let i=0;i<10;i++) console.log('STONE when move down', moves);
+        else if (PASSABLE.includes(screen[y+1][x+1])) moves += 'dr';
+        else if (PASSABLE.includes(screen[y+1][x-1])) moves += 'dl';
+        else if (PASSABLE.includes(screen[y+2][x+1])) moves += 'ddr';
       }
 
+      // if (!PASSABLE.includes(screen[y+1][x])) {
+      //   moves = doWhenStuck(x, y, screen, moves, diamonds);
+      // }
     }
   }
 
@@ -461,10 +491,16 @@ exports.play = function*(screen) {
     // moves += avoid(x, y, moves, screen);
     moves = searchAndHarvest(x, y, moves, area, diamonds);
 
+    // moves = doWhenStuck(x, y, screen, moves, diamonds);
     console.log(' moves', moves);
     // console.log(' shortArea', butterfliesShortArea(butterflies, screen));
     // console.log(area);
 
+    // for (let i = 0; i <= moves.length; i++) {
+    //   yield moves[i];
+    // }
+
     yield moves;
+    // return;
   }
 };
