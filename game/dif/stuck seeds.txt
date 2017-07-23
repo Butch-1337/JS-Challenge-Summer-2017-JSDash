@@ -8,35 +8,37 @@ node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=1734
 node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=1096468486 - ok - 86
 node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=2140081632 - ok
 
---seed=1598955300 - killed by stone - stuck in stones
 
---seed=1075023220 - 116
-
---seed=1184815903 - butterfly - 174 killed by stone - 211 killed by stone
-
---seed=161264384 - stone - stone score 102
 --seed=527030013 -stone - !!!stone score 2 stuck
-
+--seed=26510494 - killed by stone in 2sek score 2 - stuck in stones score 33
+--seed=1191090286 - stuck in stones score 52
+--seed=1410282643 - stuck in stones score 55
+--seed=1598955300 - killed by stone - stuck in stones score 78
 --seed=836919189 - buterflies and 2 diamonds left - stuck near stone score 23
+--seed=992077002 - stuck near butterfly and diamond - butterfly 55 - stuck in stones score 103
+--seed=587232868 - stone in 5s - 3 butterflies left score 187 - stuck near stone score 203
 
---seed=571069896 - stone in 1s - ok - butterfly score 215
+--seed=812031826 - stuck near 2 butterflies
 
---seed=992077002 - stuck near butterfly and diamond - butterfly 55
-
---seed=908807633 - stone - stuck near stone 53 - killed by stone 53
-
---seed=669094511 - butterfly - killed by 3stone near diamonds - killed by diamond in 1s - butterfly score 55
-
---seed=540473499 - stone - stone score 260
-
---seed=587232868 - stone in 5s - 3 butterflies left score 187
---seed=1798468531 - stone in 12s - by butterfly no diamonds score 245
-
---seed=339952454 - stuck near 3 diamonds - ok killed by butterfly score 150
-
---seed=1977774632 - slowness near butterfly - stuck near 3 diamonds score 137 - 1 butterfly left score 201
-
+--seed=2719281929 - stone from right score 23
+--seed=161264384 - stone - stone score 102
+--seed=339952454 - stuck near 3 diamonds - ok killed by butterfly score 150 - killed by stone score 181
 --seed=1592559851 - stone near falling diamond - stone score 190
 
---seed=2069505837 - stuck near stone score 24 - killed by butterfly score 95
+--seed=1075023220 - 116 - killed by stone score 200
+--seed=1184815903 - butterfly - 174 killed by stone - 211 killed by stone
+--seed=540473499 - stone - stone score 260
+
+
+--seed=2069505837 - stuck near stone score 24 - killed by butterfly score 96
+--seed=177563401 - buterfly when move up score 81
+--seed=669094511 - butterfly - killed by 3stone near diamonds - killed by diamond in 1s - butterfly score 55
+--seed=185940074 - buterfly when move up score 54
+--seed=1490936268 - butterfly score 120 no diamonds
 --seed=1184927604 - stuck near stone score 77 - killed by butterfly score 150
+--seed=1682052465 - buterfly score 157
+--seed=908807633 - stone - stuck near stone 53 - killed by stone 53 - killed by butterfly score 188
+
+--seed=571069896 - stone in 1s - ok - butterfly score 215
+--seed=1977774632 - slowness near butterfly - stuck near 3 diamonds score 137 - 1 butterfly left score 201
+--seed=1798468531 - stone in 12s - by butterfly no diamonds score 245

@@ -239,23 +239,10 @@ const hunt = (x, y, moves, screen) => {
     // let target = findNearestLee(['/', '|', '\\', '-'], butterflies, x, y, screen) || {x, y};
     // let way = lee(['/', '|', '\\', '-'], x, y, target.x, target.y, screen);
 
-    // let filteredDirt = dirt.filter(el => 
-    //   (el.y < target.y &&
-    //    el.x > target.x - 3 &&
-    //    el.x < target.x + 3)
-    // );
+    let target = findNearestLee([':'], dirt, x, y, screen) || {x, y};
+    let way = lee([':'], x, y, target.x, target.y, screen);
 
-    let filteredDirt = dirt.filter(el => screen[el.y-1][el.x] === 'O');
-    // let nearestFilteredDirt = findNearestLee([':'], filteredDirt, x, y, screen) || {x, y};
-
-    let dirtNearest = findNearestLee([':'], dirt, x, y, screen) || {x, y};
-
-    let targetDirtX = filteredDirt && filteredDirt[0] ? filteredDirt[0].x : dirtNearest.x;
-    let targetDirtY = filteredDirt && filteredDirt[0] ? filteredDirt[0].y : dirtNearest.y;
-
-    let way = lee([':'], x, y, targetDirtX, targetDirtY, screen);
-
-    // for (let i=0;i<10;i++) console.log('hunt', target, filteredDirt);
+    // for (let i=0;i<10;i++) console.log('hunt', target, way.px, way.py);
     wx = way.px;
     wy = way.py;
   }

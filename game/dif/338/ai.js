@@ -2,17 +2,8 @@
 
 const PASSABLE = [' ', ':', '*'];
 const NOTPASSABLE = ['+', '#', 'O', '/', '|', '\\', '-'];
-const dx = [1, 0, -1, 0];
-const dy = [0, 1, 0, -1];
 
-let H = 22;
-let W = 40;
 let surround = false;
-let hunting = false;
-let butterflies = [];
-let diamonds = [];
-let stones = [];
-let dirt = [];
 
 const findPlayer = screen => {
   for (let y = 0; y < screen.length; y++) {
@@ -34,52 +25,47 @@ const findThings = (things, screen) => {
   return thingsPositions;
 };
 
-const leeSearch = (grid, targetArr, ax, ay, bx, by) => {
-  let stop = false;
-  let d, x, y, k;
-
-  // console.log('leeSearch', grid.map(el => el.join('')));
-  // console.log('leeSearch', grid[by][bx], H);
-  d = 0;
-  grid[ay][ax] = 0;            // стартовая ячейка помечена 0
-  do {
-      stop = true;               // предполагаем, что все свободные клетки уже помечены
-      for ( y = 0; y < H; ++y )
-        for ( x = 0; x < W; ++x )
-          if ( grid[y][x] === d )                         // ячейка (x, y) помечена числом d
-          {
-            for ( k = 0; k < 4; ++k )                    // проходим по всем непомеченным соседям
-            {
-               let iy = y + dy[k];
-               let ix = x + dx[k];
-               if ( iy >= 0 && iy < H && ix >= 0 && ix < W &&
-                    (PASSABLE.includes(grid[iy][ix]) || targetArr.includes(grid[iy][ix]))
-                  )
-               {
-                  stop = false;              // найдены непомеченные клетки
-                  grid[iy][ix] = d + 1;      // распространяем волну
-               }
-            }
-          }
-      d++;
-    } while ( !stop && targetArr.includes(grid[by][bx]) );
-  return grid;
-}
-
-const findNearestLee = (targetArr, coordArr, ax, ay, screen) => {
+const findNearestDiamondLee = (ax, ay, diamondsPositions, screen) => {
   let lengthArr = [];
   let length = 0;
   let n = 0;
 
-  coordArr.forEach((item, i) => {
+  diamondsPositions.forEach((diam, i) => {
+    const dx = [1, 0, -1, 0];
+    const dy = [0, 1, 0, -1];
+    const H = screen.length - 1;
+    const W = screen[0].length;
+
     let grid = [...screen].map(el => el.split(''));
+    grid.pop();
+    let d, x, y, k;
+    let stop = false;
 
-    grid = leeSearch(grid, targetArr, ax, ay, item.x, item.y);
-    // console.log('grid',  grid.map(el => el.join('')));
-    // hunting && console.log('item', item);
+    d = 0;
+    grid[ay][ax] = 0;            // стартовая ячейка помечена 0
+    do {
+        stop = true;               // предполагаем, что все свободные клетки уже помечены
+        for ( y = 0; y < H; ++y )
+          for ( x = 0; x < W; ++x )
+            if ( grid[y][x] === d )                         // ячейка (x, y) помечена числом d
+            {
+              for ( k = 0; k < 4; ++k )                    // проходим по всем непомеченным соседям
+              {
+                 let iy = y + dy[k];
+                 let ix = x + dx[k];
+                 if ( iy >= 0 && iy < H && ix >= 0 && ix < W &&
+                      PASSABLE.includes(grid[iy][ix]))
+                 {
+                    stop = false;              // найдены непомеченные клетки
+                    grid[iy][ix] = d + 1;      // распространяем волну
+                 }
+              }
+            }
+        d++;
+      } while ( !stop && grid[diam.y][diam.x] === '*' );
 
-    const elLength = targetArr.includes(grid[item.y][item.x]) ? 99999 : grid[item.y][item.x];
-    // hunting && console.log(' elLength', elLength, item);
+    const elLength = grid[diam.y][diam.x] === '*' ? 99999 : grid[diam.y][diam.x];
+    // console.log(' elLength', elLength, diam);
     if (i == 0) length = elLength;
     if (elLength < length ) {
       length = elLength;
@@ -88,11 +74,16 @@ const findNearestLee = (targetArr, coordArr, ax, ay, screen) => {
     }
   });
   // console.log(' lengthArr', lengthArr);
-  return coordArr[n];
+  return diamondsPositions[n];
 }
 
-const lee = (itemArr, ax, ay, bx, by, screen) => {
+const lee = (ax, ay, bx, by, screen) => {
+  const dx = [1, 0, -1, 0];
+  const dy = [0, 1, 0, -1];
+  const H = screen.length - 1;
+  const W = screen[0].length;
   let grid = [...screen].map(el => el.split(''));
+  grid.pop();
   let d, x, y, k;
   let stop = false;
   let px = [];
@@ -100,10 +91,33 @@ const lee = (itemArr, ax, ay, bx, by, screen) => {
   let len;
   // console.log('lee', bx, by);
 
-  grid[by][bx] = 'T';
+  d = 0;
+  grid[ay][ax] = 0;            // стартовая ячейка помечена 0
+  do {
+      stop = true;               // предполагаем, что все свободные клетки уже помечены
+      for ( y = 0; y < H; ++y )
+        for ( x = 0; x < W; ++x ) {
+          if ( grid[y][x] === d )                         // ячейка (x, y) помечена числом d
+          {
+            for ( k = 0; k < 4; ++k )                    // проходим по всем непомеченным соседям
+            {
+              let iy = y + dy[k];
+              let ix = x + dx[k];
 
-  grid = leeSearch(grid, ['T'], ax, ay, bx, by);
-  // console.log('grid',  grid.map(el => el.join(' ')));
+              if ( iy >= 0 && iy < H && ix >= 0 && ix < W &&
+                    PASSABLE.includes(grid[iy][ix]))
+              {
+                // for (let i=0; i<grid.length; i++) console.log('grid', x, y, grid[i].join(''));
+                stop = false;              // найдены непомеченные клетки
+                grid[iy][ix] = d + 1;      // распространяем волну
+              }
+            }
+          }
+        }
+      d++;
+      // console.log('d', d, stop, grid[by][bx]);
+    } while ( !stop && grid[by][bx] === '*' );
+  // for (let i=0; i<grid.length; i++) console.log('grid', grid[i].join(' '));
 
     // восстановление пути
   len = grid[by][bx];            // длина кратчайшего пути из (ax, ay) в (bx, by)
@@ -137,20 +151,19 @@ const lee = (itemArr, ax, ay, bx, by, screen) => {
   return {px, py};
 }
 
-const searchAndHarvest = (x, y, moves, screen) => {
+const searchAndHarvest = (x, y, moves, screen, diamonds) => {
   // console.log('screen', screen);
-  let nearDiam = findNearestLee(['*'], diamonds, x, y, screen) || {x, y};
-  let {px, py} = lee(['*'], x, y, nearDiam.x, nearDiam.y, screen);
+  let nearDiam = findNearestDiamondLee(x, y, diamonds, screen) || {x, y};
+  let {px, py} = lee(x, y, nearDiam.x, nearDiam.y, screen);
   console.log(' near diamond', nearDiam.x, nearDiam.y);
 
-  return harvest(px, py, x, y, moves, screen);
+  return harvest(px, py, x, y, moves, screen, diamonds);
 }
 
 const isFallingStone = (x, y, screen, up) => {
 
   if (y - 1 > 0 &&
-      ['*',':','+', '/', '|', '\\', '-'].includes(screen[y-1][x])
-      ) return false;
+      ['*',':','+', '/', '|', '\\', '-'].includes(screen[y-1][x])) return false;
 
   // if (y-3 > 0 &&
   //     ['O', '*'].includes(screen[y-3][x]) &&
@@ -161,14 +174,12 @@ const isFallingStone = (x, y, screen, up) => {
   if (y-2 > 0 &&
       ['O', '*'].includes(screen[y-2][x]) &&
       ['O', '*'].includes(screen[y-1][x]) &&
-      [':', '*'].includes(screen[y][x])
-      ) return false;
+      [':', '*'].includes(screen[y][x])) return false;
 
   if (y-3 > 0 && 
       up &&
       screen[y-3][x] === 'O' &&
-      !['*',':','+', '/', '|', '\\', '-'].includes(screen[y-2][x])
-      ) {
+      !['*',':','+', '/', '|', '\\', '-'].includes(screen[y-2][x])) {
     for (let i=0;i<15;i++) console.log('stone[y-3][x]');
     return true;
   }
@@ -176,8 +187,7 @@ const isFallingStone = (x, y, screen, up) => {
   if (y-2 > 0 &&
       // !up &&
       screen[y-2][x] === 'O' &&
-      !['*',':','+', '/', '|', '\\', '-'].includes(screen[y-1][x])
-      ) {
+      !['*',':','+', '/', '|', '\\', '-'].includes(screen[y-1][x])) {
     for (let i=0;i<15;i++) console.log('stone[y-2][x]');
     return true;
   }
@@ -193,14 +203,12 @@ const isFallingDiamond = (x, y, screen, up) => {
   if (y-2 > 0 &&
       ['O', '*'].includes(screen[y-2][x]) &&
       ['O', '*'].includes(screen[y-1][x]) &&
-      [':', '*'].includes(screen[y][x])
-      ) return false;
+      [':', '*'].includes(screen[y][x])) return false;
 
   if (y-3 > 0 &&
       up &&
       screen[y-3][x] === '*' &&
-      ![':','+', '/', '|', '\\', '-'].includes(screen[y-2][x])
-      ) {
+      ![':','+', '/', '|', '\\', '-'].includes(screen[y-2][x])) {
     // for (let i=0;i<5;i++) console.log('diam[y-3][x]');
     return true;
   }
@@ -208,8 +216,7 @@ const isFallingDiamond = (x, y, screen, up) => {
   if (y-2 > 0 &&
       !up &&
       screen[y-2][x] === '*' &&
-      ![':','+', '/', '|', '\\', '-'].includes(screen[y-1][x])
-      ) {
+      ![':','+', '/', '|', '\\', '-'].includes(screen[y-1][x])) {
     // for (let i=0;i<50;i++) console.log('diam[y-2][x]');
     return true;
   }
@@ -217,65 +224,17 @@ const isFallingDiamond = (x, y, screen, up) => {
   return false;
 }
 
-const allowRight = (x, y, screen) => {
-  if (screen[y-1][x+2] === 'O' &&
-      ![':','+', '/', '|', '\\', '-'].includes(screen[y-1][x+1])
-      ) return false;
-  return true;
-}
-
-const allowLeft = (x, y, screen) => {
-  if (screen[y-1][x-2] === 'O' &&
-      ![':','+', '/', '|', '\\', '-'].includes(screen[y-1][x-1])
-      ) return false;
-  return true;
-}
-
-const hunt = (x, y, moves, screen) => {
-  let wx = x;
-  let wy = y;
-  if (butterflies.length) {
-    // let target = butterflies[butterflies.length - 1];
-    // let target = findNearestLee(['/', '|', '\\', '-'], butterflies, x, y, screen) || {x, y};
-    // let way = lee(['/', '|', '\\', '-'], x, y, target.x, target.y, screen);
-
-    // let filteredDirt = dirt.filter(el => 
-    //   (el.y < target.y &&
-    //    el.x > target.x - 3 &&
-    //    el.x < target.x + 3)
-    // );
-
-    let filteredDirt = dirt.filter(el => screen[el.y-1][el.x] === 'O');
-    // let nearestFilteredDirt = findNearestLee([':'], filteredDirt, x, y, screen) || {x, y};
-
-    let dirtNearest = findNearestLee([':'], dirt, x, y, screen) || {x, y};
-
-    let targetDirtX = filteredDirt && filteredDirt[0] ? filteredDirt[0].x : dirtNearest.x;
-    let targetDirtY = filteredDirt && filteredDirt[0] ? filteredDirt[0].y : dirtNearest.y;
-
-    let way = lee([':'], x, y, targetDirtX, targetDirtY, screen);
-
-    // for (let i=0;i<10;i++) console.log('hunt', target, filteredDirt);
-    wx = way.px;
-    wy = way.py;
-  }
-  return {wx, wy};
-}
-
-const harvest = (px, py, x, y, moves, screen) => {
+const harvest = (px, py, x, y, moves, screen, diamonds) => {
   let lPx = x - px[1];
   let lPy = y - py[1];
 
   if (lPx !== lPx || lPy !== lPy) {
     surround = true;
-    if (surround) {
-      hunting = true;
-      let huntObj = hunt(x, y, moves, screen);
-      // for (let i=0;i<10;i++) console.log('huntObj', huntObj);
-          lPx = x - huntObj.wx[1];
-          lPy = y - huntObj.wy[1];
-    }
   } // else surround = false;
+
+
+  // if (lPx === 0 && px[2]) lPx = x - px[2];
+  // if (lPy === 0 && py[2]) lPy = y - py[2];
 
   // console.log('PX PY', px, py);
   console.log('lPX lPY', lPx, lPy)
@@ -285,8 +244,7 @@ const harvest = (px, py, x, y, moves, screen) => {
 
       if (screen[y][x-1] !== 'B' &&
           !isFallingStone(x-1, y, screen) &&
-          !isFallingDiamond(x-1, y, screen)
-          ) {
+          !isFallingDiamond(x-1, y, screen)) {
             moves += 'l';
       } else {
         // for (let i=0;i<10;i++) console.log('STONE when move left');
@@ -295,8 +253,7 @@ const harvest = (px, py, x, y, moves, screen) => {
 
       if (screen[y][x+1] !== 'B' &&
           !isFallingStone(x+1, y, screen) &&
-          !isFallingDiamond(x+1, y, screen)
-          ) {
+          !isFallingDiamond(x+1, y, screen)) {
             moves += 'r';
       } else {
         // for (let i=0;i<10;i++) console.log('STONE when move right');
@@ -322,28 +279,22 @@ const harvest = (px, py, x, y, moves, screen) => {
                 !isFallingDiamond(x-1, y, screen)
                 ) moves += 'l';
         // else if (PASSABLE.includes(screen[y+1][x])) moves += 'd';
-        else moves += 'u';
+        else moves += ' '; 
         for (let i=0;i<10;i++) console.log('STONE when move up, moves:', moves);
       }
 
     } else {
       if (screen[y-1][x] !== 'O' &&
           !isFallingStone(x, y, screen) &&
-          !isFallingDiamond(x, y, screen) && 
-          screen[y+1][x] !== 'B' 
-          ) {
+          !isFallingDiamond(x, y, screen)) {
         moves += 'd';
       } else {
         if (PASSABLE.includes(screen[y][x+1]) &&
             !isFallingStone(x+1, y, screen) &&
-            !isFallingDiamond(x+1, y, screen) &&
-            allowRight(x, y, screen)
-            ) moves += 'r';
+            !isFallingDiamond(x+1, y, screen)) moves += 'r';
         else if (PASSABLE.includes(screen[y][x-1]) &&
                 !isFallingStone(x-1, y, screen) &&
-                !isFallingDiamond(x-1, y, screen) &&
-                allowLeft(x, y, screen)
-                ) moves += 'l';
+                !isFallingDiamond(x-1, y, screen)) moves += 'l';
         else moves += 'd'; 
         for (let i=0;i<10;i++) console.log('STONE when move down', moves);
       }
@@ -357,6 +308,11 @@ const harvest = (px, py, x, y, moves, screen) => {
 let butterfliesArea = (plx, ply, butterflies, screen) => {
 
   let grid = [...screen].map(el => el.split(''));
+  grid.pop();
+  const dx = [1, 0, -1, 0];
+  const dy = [0, 1, 0, -1];
+  const H = screen.length - 1;
+  const W = screen[0].length;
 
   butterflies.forEach((butterfly, i) => {
 
@@ -400,7 +356,7 @@ let butterfliesArea = (plx, ply, butterflies, screen) => {
            let ix = x + dx[k];
            if ( iy >= 0 && iy < H && ix >= 0 && ix < W &&
                 !surround &&
-                [':', '*'].includes(grid[iy][ix]) &&
+                [':', 'O', '*'].includes(grid[iy][ix]) &&
                 !['A'].includes(grid[iy][ix]) )
            {
               grid[iy][ix] = '/';
@@ -415,6 +371,11 @@ let butterfliesArea = (plx, ply, butterflies, screen) => {
 
 const butterfliesShortArea = (butterflies, screen) => {
   let grid = [...screen].map(el => el.split(''));
+  grid.pop();
+  const dx = [1, 0, -1, 0];
+  const dy = [0, 1, 0, -1];
+  const H = screen.length - 1;
+  const W = screen[0].length;
 
   let x, y, k;
   for ( y = 0; y < H; ++y )
@@ -437,24 +398,26 @@ const butterfliesShortArea = (butterflies, screen) => {
   return grid.map(el => el.join(''));
 }
 
-exports.play = function*(screen) {
-  H = screen.length - 1;
-  W = screen[0].length;
+const avoid = (x, y, moves, screen) => {
+  let grid = [...screen].map(el => el.split(''));
+  console.log('avoid', grid.map(el => el.join('')));
 
+  if (grid[y-1][x] = ' ' && ['O', '*'].includes(grid[y-2][x])) {
+    console.log('avoid if');
+    if (PASSABLE.includes(screen[y][x+1])) moves += 'r';
+    if (PASSABLE.includes(screen[y][x-1])) moves += 'l';
+  }
+
+  return moves;
+}
+
+exports.play = function*(screen) {
   while (true) {
     let { x, y } = findPlayer(screen);
-    diamonds = findThings(['*'], screen);
-    butterflies = findThings(['/', '|', '\\', '-'], screen);
-    // console.log('butterflies', butterflies);
-    stones = findThings(['O'], screen);
-    dirt = findThings([':'], screen);
-    // console.log('stones', stones);
+    let diamonds = findThings(['*'], screen);
 
-    // let area = surround
-    //             ? hunting
-    //               ? screen
-    //               : butterfliesShortArea(butterflies, screen)
-    //             : butterfliesArea(x, y, butterflies, screen);
+    let butterflies = findThings(['/', '|', '\\', '-'], screen);
+    // console.log('butterflies', butterflies);
 
     let area = surround
                 ? butterfliesShortArea(butterflies, screen)
@@ -464,7 +427,8 @@ exports.play = function*(screen) {
 
     console.log(' player pos', x, y);
 
-    moves = searchAndHarvest(x, y, moves, area);
+    // moves += avoid(x, y, moves, screen);
+    moves = searchAndHarvest(x, y, moves, area, diamonds);
 
     console.log(' moves', moves);
     // console.log(' shortArea', butterfliesShortArea(butterflies, screen));
