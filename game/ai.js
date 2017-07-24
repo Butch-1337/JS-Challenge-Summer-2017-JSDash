@@ -310,12 +310,12 @@ const harvest = (px, py, x, y, moves, screen) => {
   let lPy = y - py[1];
 
   if (lPx !== lPx || lPy !== lPy) {
-    if (screen[y][x + 1] === 'O' && screen[y][x + 2] === ' ') {
-      moves += 'r';
-    } else
-    if (screen[y][x - 1] === 'O' && screen[y][x - 2] === ' ') {
-      moves += 'l';
-    } else {
+    // if (screen[y][x + 1] === 'O' && screen[y][x + 2] === ' ') {
+    //   moves += 'r';
+    // } else
+    // if (screen[y][x - 1] === 'O' && screen[y][x - 2] === ' ') {
+    //   moves += 'l';
+    // } else {
       surround = true;
       if (surround) {
         hunting = true;
@@ -324,7 +324,7 @@ const harvest = (px, py, x, y, moves, screen) => {
         lPx = x - huntObj.wx[1];
         lPy = y - huntObj.wy[1];
       }
-    }
+    // }
   } // else surround = false;
 
   // console.log('PX PY', px, py);
@@ -361,13 +361,13 @@ const harvest = (px, py, x, y, moves, screen) => {
     if (lPy > 0) {
       if (
         !isFallingStone(x, y, screen, true) &&
-        !isFallingDiamond(x, y, screen, true) &&
-        screen[y - 1][x] !== 'B' &&
-        screen[y - 1][x + 1] !== 'B' &&
-        screen[y - 1][x - 1] !== 'B' &&
-        screen[y - 2][x] !== 'B' &&
-        screen[y - 2][x + 1] !== 'B' &&
-        screen[y - 2][x - 1] !== 'B'
+        !isFallingDiamond(x, y, screen, true) // &&
+        // screen[y - 1][x] !== 'B' &&
+        // screen[y - 1][x + 1] !== 'B' &&
+        // screen[y - 1][x - 1] !== 'B' &&
+        // screen[y - 2][x] !== 'B' &&
+        // screen[y - 2][x + 1] !== 'B' &&
+        // screen[y - 2][x - 1] !== 'B'
       ) {
         moves += 'u';
         for (let i = 0; i < 10; i++)
@@ -376,15 +376,15 @@ const harvest = (px, py, x, y, moves, screen) => {
         if (
           PASSABLE.includes(screen[y][x + 1]) &&
           !isFallingStone(x + 1, y, screen) &&
-          !isFallingDiamond(x + 1, y, screen) &&
-          allowRight(x, y, screen)
+          !isFallingDiamond(x + 1, y, screen) // &&
+          // allowRight(x, y, screen)
         )
           moves += 'r';
         else if (
           PASSABLE.includes(screen[y][x - 1]) &&
           !isFallingStone(x - 1, y, screen) &&
-          !isFallingDiamond(x - 1, y, screen) &&
-          allowLeft(x, y, screen)
+          !isFallingDiamond(x - 1, y, screen) // &&
+          // allowLeft(x, y, screen)
         )
           moves += 'l';
         else {
@@ -408,15 +408,15 @@ const harvest = (px, py, x, y, moves, screen) => {
         if (
           PASSABLE.includes(screen[y][x + 1]) &&
           !isFallingStone(x + 1, y, screen) &&
-          !isFallingDiamond(x + 1, y, screen) &&
-          allowRight(x, y, screen)
+          !isFallingDiamond(x + 1, y, screen) // &&
+          // allowRight(x, y, screen)
         )
           moves += 'r';
         else if (
           PASSABLE.includes(screen[y][x - 1]) &&
           !isFallingStone(x - 1, y, screen) &&
-          !isFallingDiamond(x - 1, y, screen) &&
-          allowLeft(x, y, screen)
+          !isFallingDiamond(x - 1, y, screen) // &&
+          // allowLeft(x, y, screen)
         )
           moves += 'l';
         else moves += 'd';
