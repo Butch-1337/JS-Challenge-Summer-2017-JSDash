@@ -25,7 +25,7 @@ node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=2140
 
 --seed=1075023220 - 116 - killed by stone score 200
 --seed=1184815903 - butterfly - 174 killed by stone - 211 killed by stone
---seed=587232868 - stone in 5s - 3 butterflies left score 187 - stuck near stone score 203 - stone when move up 213
+--seed=587232868 - stone in 5s - 3 butterflies left score 187 - stuck near stone score 203 - stone when move up 213 - stuck near stone 274 (not stable * butterfly)
 --seed=540473499 - stone - stone score 260
 
 
