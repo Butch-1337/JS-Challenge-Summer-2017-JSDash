@@ -45,4 +45,4 @@ node jsdash.js --ai=ai.js --log=log.json --in-process --interval=500 --seed=2140
 --seed=1977774632 - slowness near butterfly - stuck near 3 diamonds score 137 - 1 butterfly left score 201
 --seed=1798468531 - stone in 12s - by butterfly no diamonds score 245
 
---seed=543462473 - stuck in last v dont know why
+--seed=543462473 - stuck in stones 289

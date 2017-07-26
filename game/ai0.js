@@ -184,7 +184,7 @@ const isFallingStone = (x, y, screen, up) => {
 
   if (
     y - 2 > 0 &&
-    // !up &&
+    !up &&
     screen[y - 2][x] === 'O' &&
     ![':', '+', '/', '|', '\\', '-'].includes(screen[y - 1][x])
   ) {
@@ -223,17 +223,17 @@ const isFallingDiamond = (x, y, screen, up) => {
     screen[y - 3][x] === '*' &&
     ![':', '+', '/', '|', '\\', '-'].includes(screen[y - 2][x])
   ) {
-    // for (let i=0;i<5;i++) console.log('diam[y-3][x]');
+    for (let i=0;i<5;i++) console.log('diam[y-3][x]');
     return true;
   }
 
   if (
     y - 2 > 0 &&
-    // !up &&
+    !up &&
     screen[y - 2][x] === '*' &&
     ![':', '+', '/', '|', '\\', '-'].includes(screen[y - 1][x])
   ) {
-    // for (let i=0;i<5;i++) console.log('diam[y-2][x]');
+    for (let i=0;i<5;i++) console.log('diam[y-2][x]');
     return true;
   }
 
@@ -305,22 +305,24 @@ const hunt = (x, y, moves, screen) => {
     let filteredDirt = dirt.filter(el => screen[el.y - 1][el.x] === 'O');
 
     let dirtNearButterfly = filteredDirt.filter(el =>
-      el.x - 1 > target.x && target.x < el.x + 1 && el.y < target.y
+      el.x >= target.x - 1 && el.x <= target.x + 1 && el.y < target.y
     );
+    const dNBLast = dirtNearButterfly && dirtNearButterfly[dirtNearButterfly.length - 1];
+
     for (let i=0;i<1;i++) console.log('dirtNearButterfly', dirtNearButterfly);
     // let nearestFilteredDirt = findNearestLee([':'], filteredDirt, x, y, screen) || {x, y};
 
     let dirtNearest = findNearestLee([':'], dirt, x, y, screen) || { x, y };
 
-    let targetDirtX = dirtNearButterfly && dirtNearButterfly[0]
-    ? dirtNearButterfly[0].x
+    let targetDirtX = dNBLast
+    ? dNBLast.x
     :
      filteredDirt && filteredDirt[0]
       ? filteredDirt[0].x
       : dirtNearest.x;
 
-    let targetDirtY = dirtNearButterfly && dirtNearButterfly[0]
-    ? dirtNearButterfly[0].y
+    let targetDirtY = dNBLast
+    ? dNBLast.y
     :
      filteredDirt && filteredDirt[0]
       ? filteredDirt[0].y
@@ -435,10 +437,6 @@ const harvest = (px, py, x, y, moves, screen) => {
           !isFallingDiamond(x + 1, y, screen) &&
           allowRight(x, y, screen)
         ) {
-          // if (PASSABLE.includes(screen[y][x - 1]) &&
-          //   screen[y][x + 1] === 'B'
-          //   ) moves += 'l';
-          // else
           moves += 'r';
         } else if (
           PASSABLE.includes(screen[y][x - 1]) &&
@@ -471,10 +469,6 @@ const harvest = (px, py, x, y, moves, screen) => {
           !isFallingDiamond(x + 1, y, screen) &&
           allowRight(x, y, screen)
         ) {
-          // if (PASSABLE.includes(screen[y][x - 1]) &&
-          //   screen[y][x + 1] === 'B'
-          //   ) moves += 'l';
-          // else
           moves += 'r';
           for (let i = 0; i < 10; i++)
             console.log('Move right when down:', moves);
