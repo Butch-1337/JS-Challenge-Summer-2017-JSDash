@@ -5,6 +5,8 @@ const NOTPASSABLE = ['+', '#', 'O', '/', '|', '\\', '-'];
 const dx = [1, 0, -1, 0];
 const dy = [0, 1, 0, -1];
 
+let date;
+
 let H = 22;
 let W = 40;
 let surround = false;
@@ -77,7 +79,7 @@ const findNearestLee = (targetArr, coordArr, ax, ay, screen) => {
   let lengthArr = [];
   let length = 0;
   let n = 0;
-
+  // console.log('coordArr', coordArr);
   coordArr.forEach((item, i) => {
     let grid = [...screen].map(el => el.split(''));
 
@@ -151,7 +153,7 @@ const searchAndHarvest = (x, y, moves, screen) => {
   return harvest(px, py, x, y, moves, screen);
 };
 
-const isFallingStone = (x, y, screen, up) => {
+const isFallingStone = (x, y, screen, dir) => {
   if (
     y - 1 > 0 &&
     ['*', ':', '+', '/', '|', '\\', '-'].includes(screen[y - 1][x])
@@ -174,7 +176,7 @@ const isFallingStone = (x, y, screen, up) => {
 
   if (
     y - 3 > 0 &&
-    up &&
+    dir === 'u' &&
     screen[y - 3][x] === 'O' &&
     ![':', '+', '/', '|', '\\', '-'].includes(screen[y - 2][x])
   ) {
@@ -184,7 +186,7 @@ const isFallingStone = (x, y, screen, up) => {
 
   if (
     y - 2 > 0 &&
-    !up &&
+    dir !== 'u' &&
     screen[y - 2][x] === 'O' &&
     ![':', '+', '/', '|', '\\', '-'].includes(screen[y - 1][x])
   ) {
@@ -194,18 +196,40 @@ const isFallingStone = (x, y, screen, up) => {
 
   if (
     y - 1 > 0 &&
-    !up &&
+    dir !== 'u' &&
     screen[y - 1][x] === 'O' &&
     !['*', ':', '+', '/', '|', '\\', '-'].includes(screen[y][x])
   ) {
-    for (let i = 0; i < 15; i++) console.log('stone[y-1][x]');
+    for (let i = 0; i < 15; i++) console.log('stone[y-1][x]', date.getSeconds());
     return true;
   }
+
+  // if (
+  //   y - 1 > 0 &&
+  //   dir === 'r' &&
+  //   screen[y - 1][x + 1] === 'O' &&
+  //   !['*', ':', '+', '/', '|', '\\', '-'].includes(screen[y][x]) // &&
+  //   //!['*', ':', '+', '/', '|', '\\', '-'].includes(screen[y][x + 1])
+  // ) {
+  //   for (let i = 0; i < 15; i++) console.log('stone[y-1][x+1]', date.getSeconds());
+  //   return true;
+  // }
+  //
+  // if (
+  //   y - 1 > 0 &&
+  //   dir === 'l' &&
+  //   screen[y - 1][x - 1] === 'O' &&
+  //   !['*', ':', '+', '/', '|', '\\', '-'].includes(screen[y][x]) // &&
+  //   // !['*', ':', '+', '/', '|', '\\', '-'].includes(screen[y][x - 1])
+  // ) {
+  //   for (let i = 0; i < 15; i++) console.log('stone[y-1][x-1]', date.getSeconds());
+  //   return true;
+  // }
 
   return false;
 };
 
-const isFallingDiamond = (x, y, screen, up) => {
+const isFallingDiamond = (x, y, screen, dir) => {
   if (y - 1 > 0 && [':', '+', '/', '|', '\\', '-'].includes(screen[y - 1][x]))
     return false;
 
@@ -219,7 +243,7 @@ const isFallingDiamond = (x, y, screen, up) => {
 
   if (
     y - 3 > 0 &&
-    up &&
+    dir === 'u' &&
     screen[y - 3][x] === '*' &&
     ![':', '+', '/', '|', '\\', '-'].includes(screen[y - 2][x])
   ) {
@@ -229,13 +253,35 @@ const isFallingDiamond = (x, y, screen, up) => {
 
   if (
     y - 2 > 0 &&
-    !up &&
+    dir !== 'u' &&
     screen[y - 2][x] === '*' &&
     ![':', '+', '/', '|', '\\', '-'].includes(screen[y - 1][x])
   ) {
     for (let i=0;i<5;i++) console.log('diam[y-2][x]');
     return true;
   }
+
+  // if (
+  //   y - 1 > 0 &&
+  //   dir === 'r' &&
+  //   screen[y - 1][x + 1] === '*' &&
+  //   !['*', ':', '+', '/', '|', '\\', '-'].includes(screen[y][x]) &&
+  //   !['*', ':', '+', '/', '|', '\\', '-'].includes(screen[y][x + 1])
+  // ) {
+  //   for (let i = 0; i < 15; i++) console.log('diam[y-1][x+1]', date.getSeconds());
+  //   return true;
+  // }
+  //
+  // if (
+  //   y - 1 > 0 &&
+  //   dir === 'l' &&
+  //   screen[y - 1][x - 1] === '*' &&
+  //   !['*', ':', '+', '/', '|', '\\', '-'].includes(screen[y][x]) &&
+  //   !['*', ':', '+', '/', '|', '\\', '-'].includes(screen[y][x - 1])
+  // ) {
+  //   for (let i = 0; i < 15; i++) console.log('diam[y-1][x-1]', date.getSeconds());
+  //   return true;
+  // }
 
   // if (
   //   y - 1 > 0 &&
@@ -309,7 +355,7 @@ const hunt = (x, y, moves, screen) => {
     );
     const dNBLast = dirtNearButterfly && dirtNearButterfly[dirtNearButterfly.length - 1];
 
-    for (let i=0;i<1;i++) console.log('dirtNearButterfly', dirtNearButterfly);
+    // for (let i=0;i<1;i++) console.log('dirtNearButterfly', dirtNearButterfly);
     // let nearestFilteredDirt = findNearestLee([':'], filteredDirt, x, y, screen) || {x, y};
 
     let dirtNearest = findNearestLee([':'], dirt, x, y, screen) || { x, y };
@@ -363,85 +409,73 @@ const harvest = (px, py, x, y, moves, screen) => {
 
   for (let j = 0; j < Math.abs(lPx); j++) {
     if (lPx > 0) {
-      if (
-        screen[y][x - 1] !== 'B' &&
-        screen[y + 1][x - 1] !== 'B' &&
-        screen[y - 1][x - 1] !== 'B' &&
-        screen[y][x - 2] !== 'B' &&
-        !isFallingStone(x - 1, y, screen) &&
-        !isFallingDiamond(x - 1, y, screen)
-      ) {
+      if (permitLeft(x, y, screen)) {
         moves += 'l';
       } else {
-        // if (PASSABLE.includes(screen[y - 1][x]) &&
-        //     screen[y + 1][x - 1] === 'B'
-        //     ) moves += 'u';
-        //
-        // if (PASSABLE.includes(screen[y + 1][x]) &&
-        //     screen[y - 1][x - 1] === 'B'
-        //     ) moves += 'd';
-        //
-        // if (PASSABLE.includes(screen[y][x + 1]) &&
-        //     screen[y][x - 1] === 'B'
-        //     ) moves += 'r';
+        if (PASSABLE.includes(screen[y - 1][x]) &&
+            permitUp(x, y, screen) &&
+            screen[y + 1][x - 1] === 'B'
+            ) moves += 'u';
+
+        if (PASSABLE.includes(screen[y + 1][x]) &&
+            permitDown(x, y, screen) &&
+            screen[y - 1][x - 1] === 'B'
+            ) moves += 'd';
+
+        if (PASSABLE.includes(screen[y][x + 1]) &&
+            permitRight(x, y, screen) &&
+            screen[y][x - 1] === 'B'
+            ) moves += 'r';
 
         // if (PASSABLE.includes(screen[y][x - 1]) &&
+        //     permitLeft(x, y, screen) &&
         //     screen[y][x + 1] === 'B'
         //     ) moves += 'l';
 
-        for (let i = 0; i < 10; i++) console.log('O/B when move left', moves);
+        for (let i = 0; i < 10; i++) console.log('O/B when move left', moves, date.getSeconds());
       }
     } else {
-      if (
-        screen[y][x + 1] !== 'B' &&
-        screen[y + 1][x + 1] !== 'B' &&
-        screen[y - 1][x + 1] !== 'B' &&
-        screen[y][x + 2] !== 'B' &&
-        !isFallingStone(x + 1, y, screen) &&
-        !isFallingDiamond(x + 1, y, screen)
-      ) {
+      if (permitRight(x, y, screen)) {
         moves += 'r';
+        for (let i = 0; i < 5; i++) console.log('moves right no S/B/D',
+        screen[y - 1][x + 1], date.getSeconds());
       } else {
-        // if (PASSABLE.includes(screen[y - 1][x]) &&
-        //     screen[y + 1][x - 1] === 'B'
-        //     ) moves += 'u';
-        //
-        // if (PASSABLE.includes(screen[y + 1][x]) &&
-        //     screen[y - 1][x - 1] === 'B'
-        //     ) moves += 'd';
-        //
-        // if (PASSABLE.includes(screen[y][x - 1]) &&
-        //     screen[y][x + 1] === 'B'
-        //     ) moves += 'l';
+        if (PASSABLE.includes(screen[y - 1][x]) &&
+            permitUp(x, y, screen) &&
+            screen[y + 1][x - 1] === 'B'
+            ) moves += 'u';
 
-        for (let i = 0; i < 10; i++) console.log('O/B when move right', moves);
+        if (PASSABLE.includes(screen[y + 1][x]) &&
+            permitDown(x, y, screen) &&
+            screen[y - 1][x - 1] === 'B'
+            ) moves += 'd';
+
+        if (PASSABLE.includes(screen[y][x - 1]) &&
+            permitLeft(x, y, screen) &&
+            screen[y][x + 1] === 'B'
+            ) moves += 'l';
+
+        for (let i = 0; i < 10; i++) console.log('O/B when move right', moves, date.getSeconds());
       }
     }
   }
 
   for (let k = 0; k < Math.abs(lPy); k++) {
     if (lPy > 0) {
-      if (
-        !isFallingStone(x, y, screen, true) &&
-        !isFallingDiamond(x, y, screen, true) &&
-        screen[y - 1][x] !== 'B' &&
-        screen[y - 1][x + 1] !== 'B' &&
-        screen[y - 1][x - 1] !== 'B' &&
-        screen[y - 2][x] !== 'B'
-      ) {
+      if (permitUp(x, y, screen)) {
         moves += 'u';
       } else {
         if (
           PASSABLE.includes(screen[y][x + 1]) &&
-          !isFallingStone(x + 1, y, screen) &&
-          !isFallingDiamond(x + 1, y, screen) &&
+          !isFallingStone(x + 1, y, screen, 'r') &&
+          !isFallingDiamond(x + 1, y, screen, 'r') &&
           allowRight(x, y, screen)
         ) {
           moves += 'r';
         } else if (
           PASSABLE.includes(screen[y][x - 1]) &&
-          !isFallingStone(x - 1, y, screen) &&
-          !isFallingDiamond(x - 1, y, screen) &&
+          !isFallingStone(x - 1, y, screen, 'l') &&
+          !isFallingDiamond(x - 1, y, screen, 'l') &&
           allowLeft(x, y, screen)
         )
           moves += 'l';
@@ -449,24 +483,16 @@ const harvest = (px, py, x, y, moves, screen) => {
           // else if (PASSABLE.includes(screen[y+1][x])) moves += 'd';
           moves += 'u';
         for (let i = 0; i < 10; i++)
-          console.log('O/B when move up, moves:', moves);
+          console.log('O/B when move up, moves:', moves, date.getSeconds());
       }
     } else {
-      if (
-        screen[y - 1][x] !== 'O' &&
-        !isFallingStone(x, y, screen) &&
-        !isFallingDiamond(x, y, screen) &&
-        screen[y + 1][x] !== 'B' &&
-        screen[y + 1][x + 1] !== 'B' &&
-        screen[y + 1][x - 1] !== 'B' &&
-        screen[y + 2][x] !== 'B'
-      ) {
+      if (permitDown(x, y, screen)) {
         moves += 'd';
       } else {
         if (
           PASSABLE.includes(screen[y][x + 1]) &&
-          !isFallingStone(x + 1, y, screen) &&
-          !isFallingDiamond(x + 1, y, screen) &&
+          !isFallingStone(x + 1, y, screen, 'r') &&
+          !isFallingDiamond(x + 1, y, screen, 'r') &&
           allowRight(x, y, screen)
         ) {
           moves += 'r';
@@ -474,19 +500,56 @@ const harvest = (px, py, x, y, moves, screen) => {
             console.log('Move right when down:', moves);
         } else if (
           PASSABLE.includes(screen[y][x - 1]) &&
-          !isFallingStone(x - 1, y, screen) &&
-          !isFallingDiamond(x - 1, y, screen) &&
+          !isFallingStone(x - 1, y, screen, 'l') &&
+          !isFallingDiamond(x - 1, y, screen, 'l') &&
           allowLeft(x, y, screen)
         )
           moves += 'l';
         else moves += 'd';
-        for (let i = 0; i < 10; i++) console.log('O/B when move down', moves);
+        for (let i = 0; i < 10; i++) console.log('O/B when move down', moves, date.getSeconds());
       }
     }
   }
 
   return moves;
 };
+
+const permitLeft = (x, y, screen) => (
+  screen[y][x - 1] !== 'B' &&
+  screen[y + 1][x - 1] !== 'B' &&
+  screen[y - 1][x - 1] !== 'B' &&
+  screen[y][x - 2] !== 'B' &&
+  !isFallingStone(x - 1, y, screen, 'l') &&
+  !isFallingDiamond(x - 1, y, screen, 'l')
+);
+
+const permitRight = (x, y, screen) => (
+  screen[y][x + 1] !== 'B' &&
+  screen[y + 1][x + 1] !== 'B' &&
+  screen[y - 1][x + 1] !== 'B' &&
+  screen[y][x + 2] !== 'B' &&
+  !isFallingStone(x + 1, y, screen, 'r') &&
+  !isFallingDiamond(x + 1, y, screen, 'r')
+);
+
+const permitUp = (x, y, screen) => (
+  !isFallingStone(x, y, screen, 'u') &&
+  !isFallingDiamond(x, y, screen, 'u') &&
+  screen[y - 1][x] !== 'B' &&
+  screen[y - 1][x + 1] !== 'B' &&
+  screen[y - 1][x - 1] !== 'B' &&
+  screen[y - 2][x] !== 'B'
+);
+
+const permitDown = (x, y, screen) => (
+  screen[y - 1][x] !== 'O' &&
+  !isFallingStone(x, y, screen, 'd') &&
+  !isFallingDiamond(x, y, screen, 'd') &&
+  screen[y + 1][x] !== 'B' &&
+  screen[y + 1][x + 1] !== 'B' &&
+  screen[y + 1][x - 1] !== 'B' &&
+  screen[y + 2][x] !== 'B'
+);
 
 let butterfliesArea = (plx, ply, butterflies, screen) => {
   let grid = [...screen].map(el => el.split(''));
@@ -585,8 +648,9 @@ exports.play = function*(screen) {
   W = screen[0].length;
 
   while (true) {
+    date = new Date();
     let { x, y } = findPlayer(screen);
-    diamonds = findThings(['*'], screen);
+    // diamonds = findThings(['*'], screen);
     butterflies = findThings(['/', '|', '\\', '-'], screen);
     // console.log('butterflies', butterflies);
     stones = findThings(['O'], screen);
@@ -603,6 +667,7 @@ exports.play = function*(screen) {
       ? butterfliesShortArea(butterflies, screen)
       : butterfliesArea(x, y, butterflies, screen);
 
+    diamonds = findThings(['*'], area);
     // let area = butterfliesShortArea(butterflies, screen);
 
     let moves = '';
