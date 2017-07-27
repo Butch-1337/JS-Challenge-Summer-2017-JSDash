@@ -303,14 +303,14 @@ const allowRight = (x, y, screen) => {
   )
     return false;
 
-  if (screen[y][x + 1] === 'B') return false;
+  // if (screen[y][x + 1] === 'B') return false;
 
-  if (
-    screen[y - 1][x - 1] === 'B' ||
-    screen[y - 1][x] === 'B' ||
-    screen[y - 1][x + 1] === 'B'
-  )
-    return false;
+  // if (
+  //   screen[y - 1][x - 1] === 'B' ||
+  //   screen[y - 1][x] === 'B' ||
+  //   screen[y - 1][x + 1] === 'B'
+  // )
+  //   return false;
 
   return true;
 };
@@ -322,14 +322,14 @@ const allowLeft = (x, y, screen) => {
   )
     return false;
 
-  if (screen[y][x - 1] === 'B') return false;
+  // if (screen[y][x - 1] === 'B') return false;
 
-  if (
-    screen[y - 1][x - 1] === 'B' ||
-    screen[y - 1][x] === 'B' ||
-    screen[y - 1][x + 1] === 'B'
-  )
-    return false;
+  // if (
+  //   screen[y - 1][x - 1] === 'B' ||
+  //   screen[y - 1][x] === 'B' ||
+  //   screen[y - 1][x + 1] === 'B'
+  // )
+  //   return false;
 
   return true;
 };
@@ -412,26 +412,7 @@ const harvest = (px, py, x, y, moves, screen) => {
       if (permitLeft(x, y, screen)) {
         moves += 'l';
       } else {
-        if (PASSABLE.includes(screen[y - 1][x]) &&
-            permitUp(x, y, screen) &&
-            screen[y + 1][x - 1] === 'B'
-            ) moves += 'u';
-
-        if (PASSABLE.includes(screen[y + 1][x]) &&
-            permitDown(x, y, screen) &&
-            screen[y - 1][x - 1] === 'B'
-            ) moves += 'd';
-
-        if (PASSABLE.includes(screen[y][x + 1]) &&
-            permitRight(x, y, screen) &&
-            screen[y][x - 1] === 'B'
-            ) moves += 'r';
-
-        // if (PASSABLE.includes(screen[y][x - 1]) &&
-        //     permitLeft(x, y, screen) &&
-        //     screen[y][x + 1] === 'B'
-        //     ) moves += 'l';
-
+        moves += butterflyAvoid(x, y, screen, 'l', moves);
         for (let i = 0; i < 10; i++) console.log('O/B when move left', moves, date.getSeconds());
       }
     } else {
@@ -440,21 +421,7 @@ const harvest = (px, py, x, y, moves, screen) => {
         for (let i = 0; i < 5; i++) console.log('moves right no S/B/D',
         screen[y - 1][x + 1], date.getSeconds());
       } else {
-        if (PASSABLE.includes(screen[y - 1][x]) &&
-            permitUp(x, y, screen) &&
-            screen[y + 1][x - 1] === 'B'
-            ) moves += 'u';
-
-        if (PASSABLE.includes(screen[y + 1][x]) &&
-            permitDown(x, y, screen) &&
-            screen[y - 1][x - 1] === 'B'
-            ) moves += 'd';
-
-        if (PASSABLE.includes(screen[y][x - 1]) &&
-            permitLeft(x, y, screen) &&
-            screen[y][x + 1] === 'B'
-            ) moves += 'l';
-
+        moves += butterflyAvoid(x, y, screen, 'r', moves);
         for (let i = 0; i < 10; i++) console.log('O/B when move right', moves, date.getSeconds());
       }
     }
@@ -465,17 +432,16 @@ const harvest = (px, py, x, y, moves, screen) => {
       if (permitUp(x, y, screen)) {
         moves += 'u';
       } else {
+        moves += butterflyAvoid(x, y, screen, 'u', moves);
         if (
           PASSABLE.includes(screen[y][x + 1]) &&
-          !isFallingStone(x + 1, y, screen, 'r') &&
-          !isFallingDiamond(x + 1, y, screen, 'r') &&
+          permitRight(x, y, screen) &&
           allowRight(x, y, screen)
         ) {
           moves += 'r';
         } else if (
           PASSABLE.includes(screen[y][x - 1]) &&
-          !isFallingStone(x - 1, y, screen, 'l') &&
-          !isFallingDiamond(x - 1, y, screen, 'l') &&
+          permitLeft(x, y, screen) &&
           allowLeft(x, y, screen)
         )
           moves += 'l';
@@ -489,10 +455,10 @@ const harvest = (px, py, x, y, moves, screen) => {
       if (permitDown(x, y, screen)) {
         moves += 'd';
       } else {
+        moves += butterflyAvoid(x, y, screen, 'd', moves);
         if (
           PASSABLE.includes(screen[y][x + 1]) &&
-          !isFallingStone(x + 1, y, screen, 'r') &&
-          !isFallingDiamond(x + 1, y, screen, 'r') &&
+          permitRight(x, y, screen) &&
           allowRight(x, y, screen)
         ) {
           moves += 'r';
@@ -500,12 +466,12 @@ const harvest = (px, py, x, y, moves, screen) => {
             console.log('Move right when down:', moves);
         } else if (
           PASSABLE.includes(screen[y][x - 1]) &&
-          !isFallingStone(x - 1, y, screen, 'l') &&
-          !isFallingDiamond(x - 1, y, screen, 'l') &&
+          permitLeft(x, y, screen) &&
           allowLeft(x, y, screen)
         )
           moves += 'l';
-        else moves += 'd';
+        else 
+          moves += 'd';
         for (let i = 0; i < 10; i++) console.log('O/B when move down', moves, date.getSeconds());
       }
     }
@@ -550,6 +516,34 @@ const permitDown = (x, y, screen) => (
   screen[y + 1][x - 1] !== 'B' &&
   screen[y + 2][x] !== 'B'
 );
+
+const butterflyAvoid = (x, y, screen, dir, moves) => {
+  if (PASSABLE.includes(screen[y - 1][x]) &&
+      permitUp(x, y, screen) &&
+      dir !== 'u' &&
+      screen[y + 1][x - 1] === 'B'
+      ) moves += 'u';
+
+  if (PASSABLE.includes(screen[y + 1][x]) &&
+      permitDown(x, y, screen) &&
+      dir !== 'd' &&
+      screen[y - 1][x - 1] === 'B'
+      ) moves += 'd';
+
+  if (PASSABLE.includes(screen[y][x + 1]) &&
+      permitRight(x, y, screen) &&
+      dir !== 'r' &&
+      screen[y][x - 1] === 'B'
+      ) moves += 'r';
+
+  if (PASSABLE.includes(screen[y][x - 1]) &&
+      permitLeft(x, y, screen) &&
+      dir !== 'l' &&
+      screen[y][x + 1] === 'B'
+      ) moves += 'l';
+
+  return moves;
+};
 
 let butterfliesArea = (plx, ply, butterflies, screen) => {
   let grid = [...screen].map(el => el.split(''));
