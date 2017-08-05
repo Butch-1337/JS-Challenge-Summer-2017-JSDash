@@ -657,12 +657,13 @@ exports.play = function*(screen) {
     //               : butterfliesShortArea(butterflies, screen)
     //             : butterfliesArea(x, y, butterflies, screen);
 
-    let area = surround
-      ? butterfliesShortArea(butterflies, screen)
-      : butterfliesArea(x, y, butterflies, screen);
+    // let area = surround
+    //   ? butterfliesShortArea(butterflies, screen)
+    //   : butterfliesArea(x, y, butterflies, screen);
+
+    let area = butterfliesShortArea(butterflies, screen);
 
     diamonds = findThings(['*'], area);
-    // let area = butterfliesShortArea(butterflies, screen);
 
     let moves = '';
 
